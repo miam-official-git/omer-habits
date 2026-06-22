@@ -42,6 +42,13 @@
       "days": "weekly",
       "active": true,
       "desc": "שיחה כל יום עם בן משפחה אחר"
+    },
+    {
+      "id": "h_mqpjnguk",
+      "name": "שיחה עם עמית",
+      "icon": "✅",
+      "days": "work",
+      "active": true
     }
   ],
   "log": {
