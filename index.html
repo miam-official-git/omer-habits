@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>ג'יימס קליר — הרגלים</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0d0f1a;--card:#161926;--card2:#1e2235;
+  --orange:#f5a623;--green:#4ade80;--red:#f87171;--gray:#374151;
+  --text:#e2e8f0;--muted:#64748b;--r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",sans-serif;
+     font-size:15px;padding-bottom:60px;min-height:100vh}
+
+/* ── SETUP ── */
+#setup{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.setup-box{background:var(--card);border-radius:20px;padding:28px 24px;max-width:380px;width:100%}
+.setup-logo{font-size:36px;text-align:center;margin-bottom:6px}
+.setup-title{font-size:20px;font-weight:700;color:var(--orange);text-align:center}
+.setup-sub{font-size:13px;color:var(--muted);text-align:center;margin:6px 0 22px}
+.setup-label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
+.setup-input{width:100%;background:#0d0f1a;border:1px solid #2d3148;border-radius:10px;
+             color:var(--text);padding:11px 13px;font-size:14px;margin-bottom:14px;
+             direction:ltr;outline:none;font-family:monospace}
+.setup-input:focus{border-color:var(--orange)}
+.setup-btn{width:100%;background:var(--orange);color:#000;border:none;border-radius:12px;
+           padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+.setup-help{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
+.setup-help a{color:var(--orange);text-decoration:none}
+.setup-err{color:var(--red);font-size:13px;text-align:center;margin-top:10px;display:none}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(160deg,#1a1d2e,#0d0f1a);padding:18px 16px 14px;
+     border-bottom:1px solid var(--card2);position:sticky;top:0;z-index:20}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-size:19px;font-weight:700;color:var(--orange)}
+.hdr-date{font-size:12px;color:var(--muted);margin-top:3px}
+.settings-btn{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px}
+
+/* ── IDENTITY ── */
+.identity{margin:12px 16px 0;padding:10px 14px;background:var(--card);
+          border-radius:var(--r);border-right:3px solid var(--orange);
+          font-size:13px;color:#94a3b8;font-style:italic}
+
+/* ── WARNING ── */
+.warn{margin:10px 16px 0;padding:10px 14px;background:rgba(248,113,113,.1);
+      border:1px solid rgba(248,113,113,.3);border-radius:var(--r);
+      font-size:13px;color:var(--red);display:none}
+
+/* ── SECTION ── */
+.sec{margin:18px 16px 0}
+.sec-title{font-size:11px;font-weight:600;color:var(--muted);
+           letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px}
+
+/* ── HABIT CARD ── */
+.hcard{background:var(--card);border-radius:var(--r);padding:13px 15px;margin-bottom:8px;
+       display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;
+       border:2px solid transparent;user-select:none;-webkit-tap-highlight-color:transparent}
+.hcard.done{border-color:var(--green);background:rgba(74,222,128,.07)}
+.hcard.miss{border-color:var(--red);background:rgba(248,113,113,.06)}
+.hcard.na{opacity:.35;cursor:default}
+.hcard-icon{font-size:22px;flex-shrink:0}
+.hcard-info{flex:1}
+.hcard-name{font-weight:500}
+.hcard-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.hcard-check{width:26px;height:26px;border-radius:50%;border:2px solid var(--gray);
+             display:flex;align-items:center;justify-content:center;
+             font-size:13px;flex-shrink:0;transition:all .15s}
+.hcard.done .hcard-check{background:var(--green);border-color:var(--green);color:#000}
+.hcard.miss .hcard-check{background:var(--red);border-color:var(--red);color:#000}
+
+/* ── STREAKS ── */
+.streak-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scard{background:var(--card);border-radius:var(--r);padding:13px 14px}
+.scard-num{font-size:30px;font-weight:700;color:var(--orange);line-height:1}
+.scard-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.scard-name{font-size:13px;margin-top:7px;font-weight:500}
+
+/* ── CHART ── */
+.chart-wrap{background:var(--card);border-radius:var(--r);padding:16px 12px;height:190px;position:relative}
+
+/* ── MONTHLY ── */
+.month-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px}
+.mcell{background:var(--card);border-radius:10px;padding:10px 6px;text-align:center}
+.mcell-pct{font-size:17px;font-weight:700;color:var(--orange)}
+.mcell-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── MOOD ── */
+.mood-row{display:flex;gap:6px;margin-bottom:10px}
+.mood-btn{flex:1;background:var(--card);border:2px solid transparent;border-radius:10px;
+          padding:8px 2px;text-align:center;font-size:22px;cursor:pointer;transition:all .15s}
+.mood-btn.active{border-color:var(--orange);background:rgba(245,166,35,.1)}
+.mood-lbl{font-size:9px;color:var(--muted);margin-top:2px}
+textarea{width:100%;background:var(--card);border:1px solid #2d3148;border-radius:var(--r);
+         color:var(--text);padding:11px 13px;font-size:14px;font-family:inherit;
+         resize:vertical;min-height:75px;direction:rtl;outline:none}
+textarea:focus{border-color:var(--orange)}
+textarea::placeholder{color:var(--muted)}
+
+/* ── BUTTONS ── */
+.btn-main{width:100%;margin-top:8px;background:var(--orange);color:#000;border:none;
+          border-radius:var(--r);padding:11px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-add{width:100%;background:transparent;border:1px dashed var(--muted);border-radius:var(--r);
+         color:var(--muted);padding:10px;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-add:active{border-color:var(--orange);color:var(--orange)}
+
+/* ── MANAGE ── */
+.manage-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.mcard{background:var(--card);border-radius:10px;padding:10px 13px;
+       margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.mcard-info{flex:1;font-size:14px}
+.mcard-sub2{font-size:11px;color:var(--muted);margin-top:1px}
+.btn-del{background:rgba(248,113,113,.15);border:none;color:var(--red);
+         border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
+.add-form{background:var(--card2);border-radius:var(--r);padding:14px;margin-top:10px}
+.add-form input,.add-form select{width:100%;background:var(--card);border:1px solid #2d3148;
+  border-radius:8px;color:var(--text);padding:9px 12px;font-size:14px;margin-bottom:8px;
+  direction:rtl;outline:none}
+.add-form input:focus,.add-form select:focus{border-color:var(--orange)}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px}
+.spinner{width:32px;height:32px;border:3px solid var(--card2);border-top-color:var(--orange);
+         border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+       background:var(--card2);border:1px solid var(--orange);color:var(--text);
+       padding:9px 20px;border-radius:20px;font-size:13px;opacity:0;
+       transition:opacity .25s;pointer-events:none;z-index:99;white-space:nowrap}
+.toast.show{opacity:1}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP SCREEN ══ -->
+<div id="setup">
+  <div class="setup-box">
+    <div class="setup-logo">🎯</div>
+    <div class="setup-title">ג'יימס קליר</div>
+    <div class="setup-sub">הגדרה חד-פעמית — 2 דקות</div>
+
+    <label class="setup-label">GitHub Token</label>
+    <input id="s-token" class="setup-input" type="password" placeholder="ghp_xxxxxxxxxxxx">
+
+    <label class="setup-label">GitHub Username</label>
+    <input id="s-owner" class="setup-input" type="text" placeholder="miam-official-git" dir="ltr">
+
+    <label class="setup-label">שם הריפו</label>
+    <input id="s-repo" class="setup-input" type="text" placeholder="james-clear-dashboard" dir="ltr">
+
+    <button class="setup-btn" onclick="doSetup()">התחבר</button>
+    <div class="setup-err" id="setup-err"></div>
+
+    <div class="setup-help">
+      Token: <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a><br>
+      הרשאות נדרשות: <strong>Contents → Read &amp; Write</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN DASHBOARD ══ -->
+<div id="main" class="hidden">
+
+  <div class="hdr">
+    <div class="hdr-row">
+      <div class="hdr-title">🎯 ג'יימס קליר</div>
+      <button class="settings-btn" onclick="logout()" title="התנתק">⚙</button>
+    </div>
+    <div class="hdr-date" id="hdate"></div>
+  </div>
+
+  <!-- loading -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    טוען נתונים...
+  </div>
+
+  <!-- content (hidden while loading) -->
+  <div id="content" class="hidden">
+    <div class="identity" id="identity">"אני האדם שמטפח גוף, נשמה ואהבה — כל יום."</div>
+    <div class="warn" id="warn"></div>
+
+    <div class="sec">
+      <div class="sec-title">היום</div>
+      <div id="habits-list"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">🔥 שרשראות</div>
+      <div class="streak-grid" id="streaks"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">30 יום אחרונים</div>
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">סיכום חודש נוכחי</div>
+      <div class="month-grid" id="month-grid"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">איך אתה מרגיש היום?</div>
+      <div class="mood-row">
+        <div class="mood-btn" data-m="1" onclick="setMood(1)">😔<div class="mood-lbl">קשה</div></div>
+        <div class="mood-btn" data-m="2" onclick="setMood(2)">😐<div class="mood-lbl">בסדר</div></div>
+        <div class="mood-btn" data-m="3" onclick="setMood(3)">😊<div class="mood-lbl">טוב</div></div>
+        <div class="mood-btn" data-m="4" onclick="setMood(4)">🔥<div class="mood-lbl">מצוין</div></div>
+      </div>
+      <textarea id="reflection" placeholder="מה עבד? איפה צריך עזרה? מה מרגיש?"></textarea>
+      <button class="btn-main" onclick="saveReflection()">שמור</button>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title manage-hdr" onclick="toggleManage()">
+        <span>ניהול הרגלים</span>
+        <span id="mtog" style="color:var(--muted);font-size:12px">▼ פתח</span>
+      </div>
+      <div id="mbody" class="hidden" style="margin-top:10px">
+        <div id="mlist"></div>
+        <div id="add-tog">
+          <button class="btn-add" onclick="showAdd()">+ הוסף הרגל חדש</button>
+        </div>
+        <div id="add-form" class="add-form hidden">
+          <input id="new-icon" placeholder="אייקון (אמוג'י)" value="✅">
+          <input id="new-name" placeholder="שם ההרגל">
+          <select id="new-days">
+            <option value="daily">כל יום</option>
+            <option value="work">ראשון–חמישי בלבד</option>
+            <option value="weekly">שבועי</option>
+          </select>
+          <button class="btn-main" onclick="addHabit()">הוסף</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CONFIG ══════════════════════════════════════════════════════════════════
+function getCfg(){ return JSON.parse(localStorage.getItem('jc_cfg') || 'null'); }
+function setCfg(c){ localStorage.setItem('jc_cfg', JSON.stringify(c)); }
+
+// ══ GITHUB API ══════════════════════════════════════════════════════════════
+var DATA_PATH = 'data/tracking.json';
+var trackingSha = null;
+var trackingData = null;
+
+function b64enc(str){
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_,p){ return String.fromCharCode(parseInt(p,16)); }));
+}
+function b64dec(b64){
+  return decodeURIComponent(atob(b64.replace(/\n/g,'')).split('').map(function(c){
+    return '%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+}
+
+async function ghGet(path){
+  var cfg = getCfg();
+  var res = await fetch('https://api.github.com/repos/'+cfg.owner+'/'+cfg.repo+'/contents/'+path, {
+    headers: { 'Authorization': 'token '+cfg.token, 'Accept': 'application/vnd.github.v3+json' }
+  });
+  if(res.status === 404) return null;
+  if(!res.ok){ var e = await res.json(); throw new Error(e.message||res.status); }
+  var d = await res.json();
+  return { content: JSON.parse(b64dec(d.content)), sha: d.sha };
+}
+
+async function ghPut(path, content, sha){
+  var cfg = getCfg();
+  var body = { message: 'update habits', content: b64enc(JSON.stringify(content, null, 2)) };
+  if(sha) body.sha = sha;
+  var res = await fetch('https://api.github.com/repos/'+cfg.owner+'/'+cfg.repo+'/contents/'+path, {
+    method: 'PUT',
+    headers: { 'Authorization': 'token '+cfg.token,
+               'Accept': 'application/vnd.github.v3+json',
+               'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){ var e = await res.json(); throw new Error(e.message||res.status); }
+  var d = await res.json();
+  return d.content.sha;
+}
+
+// ══ SETUP ═══════════════════════════════════════════════════════════════════
+async function doSetup(){
+  var token = document.getElementById('s-token').value.trim();
+  var owner = document.getElementById('s-owner').value.trim();
+  var repo  = document.getElementById('s-repo').value.trim();
+  var err   = document.getElementById('setup-err');
+  if(!token||!owner||!repo){ err.textContent='מלא את כל השדות'; err.style.display='block'; return; }
+  err.style.display = 'none';
+  document.querySelector('.setup-btn').textContent = '...מתחבר';
+  setCfg({ token, owner, repo });
+  try {
+    var res = await ghGet(DATA_PATH);
+    if(!res){
+      // Create initial file
+      var init = { habits:[
+        {id:'sport',   name:'ריצה / חבל',  icon:'🏃',days:'work',  active:true},
+        {id:'strength',name:'שכיבות / מתח',icon:'💪',days:'work',  active:true},
+        {id:'tefillin',name:'תפילין',       icon:'🙏',days:'work',  active:true},
+        {id:'mia',     name:'מחווה למיה',  icon:'❤️',days:'daily', active:true},
+        {id:'family',  name:'שיחות משפחה', icon:'👨‍👩‍👧',days:'weekly',active:true}
+      ], log:{}, last_morning:null, last_midday:null, last_evening:null };
+      trackingSha  = await ghPut(DATA_PATH, init, null);
+      trackingData = init;
+    } else {
+      trackingSha  = res.sha;
+      trackingData = res.content;
+    }
+    showMain();
+  } catch(e) {
+    setCfg(null);
+    document.querySelector('.setup-btn').textContent = 'התחבר';
+    err.textContent = 'שגיאה: ' + e.message;
+    err.style.display = 'block';
+  }
+}
+
+function logout(){
+  if(!confirm('להתנתק?')) return;
+  localStorage.removeItem('jc_cfg');
+  location.reload();
+}
+
+function showMain(){
+  document.getElementById('setup').classList.add('hidden');
+  document.getElementById('main').classList.remove('hidden');
+  render();
+}
+
+// ══ DATA HELPERS ═════════════════════════════════════════════════════════════
+var DEFAULT_HABITS = [
+  {id:'sport',   name:'ריצה / חבל',  icon:'🏃',days:'work',  active:true},
+  {id:'strength',name:'שכיבות / מתח',icon:'💪',days:'work',  active:true},
+  {id:'tefillin',name:'תפילין',       icon:'🙏',days:'work',  active:true},
+  {id:'mia',     name:'מחווה למיה',  icon:'❤️',days:'daily', active:true},
+  {id:'family',  name:'שיחות משפחה', icon:'👨‍👩‍👧',days:'weekly',active:true}
+];
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function dayStr(d){ return d.toISOString().slice(0,10); }
+
+function isWork(d){
+  var day = d.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  return day >= 0 && day <= 4; // Sun(0)–Thu(4)
+}
+
+function calcStreak(log, hid){
+  var n=0, today=new Date();
+  for(var i=0;i<90;i++){
+    var d=new Date(today); d.setDate(today.getDate()-i);
+    var v=(log[dayStr(d)]||{})[hid];
+    if(v===true) n++;
+    else if(v===false) break;
+    else if(i===0) continue;
+    else break;
+  }
+  return n;
+}
+
+function applicable(h, d){
+  var day = d.getDay();
+  if(h.days==='daily') return true;
+  if(h.days==='work') return day>=0&&day<=4;
+  if(h.days==='weekly') return true;
+  return true;
+}
+
+function dayLabel(days){
+  if(days==='daily') return 'כל יום';
+  if(days==='work') return 'ראשון–חמישי';
+  if(days==='weekly') return 'שבועי';
+  return days;
+}
+
+// ══ SAVE ════════════════════════════════════════════════════════════════════
+var saving = false;
+async function saveData(){
+  if(saving) return;
+  saving = true;
+  try {
+    trackingSha = await ghPut(DATA_PATH, trackingData, trackingSha);
+  } catch(e) {
+    toast('שגיאת שמירה: ' + e.message);
+  } finally {
+    saving = false;
+  }
+}
+
+// ══ RENDER ══════════════════════════════════════════════════════════════════
+var chartInst = null;
+var currentMood = null;
+
+function render(){
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('content').classList.remove('hidden');
+
+  var data = trackingData;
+  if(!data.habits) data.habits = DEFAULT_HABITS;
+  if(!data.log)    data.log    = {};
+
+  var today = new Date();
+  var ts = todayStr();
+  var active = data.habits.filter(function(h){ return h.active; });
+  var log = data.log;
+
+  // Date header
+  var DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  var MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  document.getElementById('hdate').textContent =
+    'יום '+DAYS[today.getDay()]+' · '+today.getDate()+' '+MONTHS[today.getMonth()]+' '+today.getFullYear();
+
+  // Today habits
+  var todayEntry = log[ts] || {};
+  var todayHabits = active.map(function(h){
+    return Object.assign({}, h, { applicable: applicable(h,today), done: todayEntry[h.id] });
+  });
+
+  // Identity
+  var doneCount  = todayHabits.filter(function(h){ return h.done===true && h.applicable; }).length;
+  var totalCount = todayHabits.filter(function(h){ return h.applicable; }).length;
+  var idEl = document.getElementById('identity');
+  if(doneCount===totalCount && totalCount>0)
+    idEl.textContent = '🏆 '+doneCount+'/'+totalCount+' היום — אתה האדם שאמרת שתהיה.';
+  else
+    idEl.textContent = '"אני האדם שמטפח גוף, נשמה ואהבה — כל יום."';
+
+  // Warning missed yesterday
+  var yest = new Date(today); yest.setDate(today.getDate()-1);
+  var yEntry = log[dayStr(yest)] || {};
+  var missedYest = active.filter(function(h){ return yEntry[h.id]===false; }).map(function(h){ return h.icon+' '+h.name; });
+  var warnEl = document.getElementById('warn');
+  if(missedYest.length){
+    warnEl.style.display='block';
+    warnEl.innerHTML='<strong>לא מפספסים פעמיים.</strong> אתמול פספסת: '+missedYest.join(' · ')+'. היום — חייב.';
+  } else { warnEl.style.display='none'; }
+
+  // Habits list
+  var list = document.getElementById('habits-list');
+  list.innerHTML = '';
+  todayHabits.forEach(function(h){
+    var cls = 'hcard'+(h.done===true?' done':h.done===false?' miss':'')+(h.applicable?'':' na');
+    var chk = h.done===true?'✓':h.done===false?'✗':'';
+    var sub = dayLabel(h.days)+(!h.applicable?' · לא נדרש היום':'');
+    var div = document.createElement('div');
+    div.className = cls;
+    div.innerHTML =
+      '<div class="hcard-icon">'+h.icon+'</div>'+
+      '<div class="hcard-info"><div class="hcard-name">'+h.name+'</div><div class="hcard-sub">'+sub+'</div></div>'+
+      '<div class="hcard-check">'+chk+'</div>';
+    (function(hh){ div.onclick = function(){ if(hh.applicable) toggleHabit(hh); }; })(h);
+    list.appendChild(div);
+  });
+
+  // Streaks
+  var sg = document.getElementById('streaks');
+  sg.innerHTML = '';
+  active.forEach(function(h){
+    var n = calcStreak(log, h.id);
+    var fire = n>=7?'🔥🔥':n>=3?'🔥':'';
+    var div = document.createElement('div');
+    div.className = 'scard';
+    div.innerHTML =
+      '<div class="scard-num">'+n+'<span style="font-size:16px">'+fire+'</span></div>'+
+      '<div class="scard-lbl">ימים רצופים</div>'+
+      '<div class="scard-name">'+h.icon+' '+h.name+'</div>';
+    sg.appendChild(div);
+  });
+
+  // Chart — 30 days
+  var cdays=[], cdone=[], ctotal=[];
+  for(var i=29;i>=0;i--){
+    var d=new Date(today); d.setDate(today.getDate()-i);
+    var ds=dayStr(d);
+    var entry=log[ds]||{};
+    var appH=active.filter(function(h){ return applicable(h,d) && h.days!=='weekly'; });
+    cdays.push((d.getDate()<10?'0':'')+d.getDate()+'/'+(d.getMonth()<9?'0':'')+(d.getMonth()+1));
+    cdone.push(appH.filter(function(h){ return entry[h.id]===true; }).length);
+    ctotal.push(Math.max(appH.length,1));
+  }
+  var ctx = document.getElementById('chart').getContext('2d');
+  if(chartInst) chartInst.destroy();
+  var pcts = cdone.map(function(d,i){ return ctotal[i]>0?Math.round(d/ctotal[i]*100):0; });
+  chartInst = new Chart(ctx,{
+    type:'bar',
+    data:{ labels:cdays, datasets:[{
+      data: pcts,
+      backgroundColor: pcts.map(function(p){
+        return p>=80?'rgba(74,222,128,.75)':p>=50?'rgba(245,166,35,.75)':p>0?'rgba(248,113,113,.65)':'rgba(55,65,81,.4)';
+      }),
+      borderRadius:4, borderSkipped:false
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(c){ return c.raw+'%'; }}} },
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:'#4b5563',font:{size:9},maxTicksLimit:8} },
+        y:{ display:false, min:0, max:100 }
+      }
+    }
+  });
+
+  // Monthly
+  var mg = document.getElementById('month-grid');
+  mg.innerHTML = '';
+  var now2 = new Date();
+  var mStart = new Date(now2.getFullYear(), now2.getMonth(), 1);
+  active.filter(function(h){ return h.days!=='weekly'; }).forEach(function(h){
+    var done2=0, tot2=0;
+    for(var d2=new Date(mStart); d2<=now2; d2.setDate(d2.getDate()+1)){
+      if(!applicable(h,d2)) continue;
+      tot2++;
+      if((log[dayStr(d2)]||{})[h.id]===true) done2++;
+    }
+    var pct = tot2>0?Math.round(done2/tot2*100):0;
+    var col = pct>=80?'var(--green)':pct>=50?'var(--orange)':'var(--red)';
+    var div = document.createElement('div');
+    div.className = 'mcell';
+    div.innerHTML =
+      '<div style="font-size:18px">'+h.icon+'</div>'+
+      '<div class="mcell-pct" style="color:'+col+'">'+pct+'%</div>'+
+      '<div class="mcell-sub">'+done2+'/'+tot2+'</div>';
+    mg.appendChild(div);
+  });
+
+  // Reflection
+  document.getElementById('reflection').value = todayEntry.reflection || '';
+  if(todayEntry.mood) setMood(todayEntry.mood, false);
+
+  // Manage list
+  var ml = document.getElementById('mlist');
+  ml.innerHTML = '';
+  data.habits.forEach(function(h){
+    var div = document.createElement('div');
+    div.className = 'mcard';
+    div.innerHTML =
+      '<span style="font-size:18px">'+h.icon+'</span>'+
+      '<div class="mcard-info"><div>'+h.name+'</div><div class="mcard-sub2">'+dayLabel(h.days)+'</div></div>'+
+      '<button class="btn-del" onclick="delHabit(\''+h.id+'\')">מחק</button>';
+    ml.appendChild(div);
+  });
+}
+
+// ══ ACTIONS ═════════════════════════════════════════════════════════════════
+async function toggleHabit(h){
+  var ts = todayStr();
+  if(!trackingData.log[ts]) trackingData.log[ts] = {};
+  var cur = trackingData.log[ts][h.id];
+  var next = cur===true?false:cur===false?null:true;
+  if(next===null) delete trackingData.log[ts][h.id];
+  else trackingData.log[ts][h.id] = next;
+  render();
+  await saveData();
+  if(next===true)  toast('✅ '+h.name);
+  if(next===false) toast('✗ '+h.name+' — מחר לא פעמיים');
+}
+
+function setMood(m, doSave){
+  currentMood = m;
+  document.querySelectorAll('.mood-btn').forEach(function(b){
+    b.classList.toggle('active', +b.dataset.m === m);
+  });
+  if(doSave!==false){
+    var ts = todayStr();
+    if(!trackingData.log[ts]) trackingData.log[ts]={};
+    trackingData.log[ts].mood = m;
+    saveData();
+  }
+}
+
+async function saveReflection(){
+  var ts = todayStr();
+  if(!trackingData.log[ts]) trackingData.log[ts]={};
+  trackingData.log[ts].reflection = document.getElementById('reflection').value.trim();
+  trackingData.log[ts].mood = currentMood;
+  await saveData();
+  toast('נשמר ✓');
+}
+
+async function delHabit(id){
+  if(!confirm('למחוק את ההרגל?')) return;
+  trackingData.habits = trackingData.habits.filter(function(h){ return h.id!==id; });
+  render();
+  await saveData();
+  toast('הרגל נמחק');
+}
+
+async function addHabit(){
+  var name = document.getElementById('new-name').value.trim();
+  if(!name){ toast('שכחת שם'); return; }
+  var icon = document.getElementById('new-icon').value.trim()||'✅';
+  var days = document.getElementById('new-days').value;
+  var id = 'h_'+(Date.now().toString(36));
+  trackingData.habits.push({ id:id, name:name, icon:icon, days:days, active:true });
+  document.getElementById('new-name').value = '';
+  document.getElementById('add-form').classList.add('hidden');
+  document.getElementById('add-tog').classList.remove('hidden');
+  render();
+  await saveData();
+  toast('✅ הרגל נוסף!');
+}
+
+function showAdd(){
+  document.getElementById('add-form').classList.remove('hidden');
+  document.getElementById('add-tog').classList.add('hidden');
+}
+
+function toggleManage(){
+  var b=document.getElementById('mbody'), t=document.getElementById('mtog');
+  var open=b.classList.toggle('hidden');
+  t.textContent = open?'▼ פתח':'▲ סגור';
+}
+
+var toastTimer;
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.classList.remove('show'); },2200);
+}
+
+// ══ INIT ════════════════════════════════════════════════════════════════════
+(async function(){
+  var cfg = getCfg();
+  if(!cfg){
+    document.getElementById('setup').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('setup').classList.add('hidden');
+  document.getElementById('main').classList.remove('hidden');
+  try {
+    var res = await ghGet(DATA_PATH);
+    if(!res){
+      trackingData = { habits: DEFAULT_HABITS, log:{} };
+      trackingSha  = await ghPut(DATA_PATH, trackingData, null);
+    } else {
+      trackingData = res.content;
+      trackingSha  = res.sha;
+    }
+    render();
+  } catch(e){
+    document.getElementById('loading').innerHTML =
+      '<div style="color:var(--red)">שגיאה בטעינה: '+e.message+'<br><br>'+
+      '<button class="btn-main" style="width:auto;padding:8px 20px" onclick="logout()">נסה שוב</button></div>';
+  }
+})();
+</script>
+</body>
+</html>
