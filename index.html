@@ -644,7 +644,7 @@ function render(){
   todayHabits.forEach(function(h){
     var cls = 'hcard'+(h.done===true?' done':h.done===false?' miss':'')+(h.applicable?'':' na');
     var chk = h.done===true?'✓':h.done===false?'✗':'';
-    var sub = dayLabel(h.days)+(!h.applicable?' · לא נדרש היום':'');
+    var sub = (h.desc && h.desc.trim() ? h.desc : dayLabel(h.days))+(!h.applicable?' · לא נדרש היום':'');
     var div = document.createElement('div');
     div.className = cls;
     div.innerHTML =
