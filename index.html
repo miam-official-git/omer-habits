@@ -542,6 +542,15 @@ function dayLabel(days){
   return days;
 }
 
+// התאריך הראשון שבו נרשם משהו (true/false) — ממנו מתחילים לספור
+function firstTrackedDate(log){
+  var dates = Object.keys(log).filter(function(ds){
+    var e = log[ds];
+    return Object.keys(e).some(function(k){ return e[k]===true || e[k]===false; });
+  }).sort();
+  return dates.length ? new Date(dates[0]+'T00:00:00') : null;
+}
+
 // ══ SAVE ════════════════════════════════════════════════════════════════════
 var saving = false;
 async function saveData(){
@@ -679,6 +688,8 @@ function render(){
   mg.innerHTML = '';
   var now2 = new Date();
   var mStart = new Date(now2.getFullYear(), now2.getMonth(), 1);
+  var firstTrk = firstTrackedDate(log);
+  if(firstTrk && firstTrk > mStart) mStart = firstTrk;  // ספור מהיום שהתחלת
   active.filter(function(h){ return h.days!=='weekly'; }).forEach(function(h){
     var done2=0, tot2=0;
     for(var d2=new Date(mStart); d2<=now2; d2.setDate(d2.getDate()+1)){
@@ -782,6 +793,8 @@ function openDetail(id){
   // stats
   document.getElementById('d-streak').textContent = calcStreak(log, id);
   var now = new Date(), mStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var firstTrk = firstTrackedDate(log);
+  if(firstTrk && firstTrk > mStart) mStart = firstTrk;  // ספור מהיום שהתחלת
   var mDone=0, mTot=0, total=0;
   Object.keys(log).forEach(function(ds){ if(log[ds][id]===true) total++; });
   for(var d=new Date(mStart); d<=now; d.setDate(d.getDate()+1)){
