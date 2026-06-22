@@ -1,4 +1,7 @@
 {
+  "last_morning": null,
+  "last_midday": null,
+  "last_evening": "2026-06-21",
   "habits": [
     {
       "id": "sport",
@@ -37,9 +40,19 @@
     }
   ],
   "log": {
-    "2026-06-22": {}
-  },
-  "last_morning": null,
-  "last_midday": null,
-  "last_evening": null
+    "2026-06-21": {
+      "sport": true,
+      "strength": true,
+      "tefillin": true,
+      "mia": true,
+      "family": "אבא + אמא"
+    },
+    "2026-06-22": {
+      "sport": true,
+      "strength": true,
+      "tefillin": true,
+      "mia": true,
+      "family": "מור, אביתר, אבא — אמא בחו\"ל"
+    }
+  }
 }
