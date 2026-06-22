@@ -197,6 +197,25 @@ textarea::placeholder{color:var(--muted)}
 .hist-entry-text{font-size:14px;color:var(--text);line-height:1.5}
 .hist-empty{color:var(--muted);font-size:13px;text-align:center;padding:20px}
 
+/* ── CHAT ── */
+.chat-thread{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;
+             padding:4px 2px 10px}
+.chat-bubble{max-width:82%;padding:10px 13px;border-radius:16px;font-size:14px;line-height:1.5;
+             white-space:pre-wrap;word-break:break-word}
+.chat-bubble.omer{align-self:flex-start;background:var(--card2);border-bottom-right-radius:5px}
+.chat-bubble.james{align-self:flex-end;background:rgba(245,166,35,.14);
+                    border:1px solid rgba(245,166,35,.3);border-bottom-left-radius:5px}
+.chat-from{font-size:10px;color:var(--muted);margin-bottom:3px}
+.chat-from.j{color:var(--orange)}
+.chat-time{font-size:9px;color:var(--muted);margin-top:4px;opacity:.7}
+.chat-empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 12px;line-height:1.6}
+.chat-input-row{display:flex;gap:8px;margin-top:10px}
+.chat-input-row textarea{flex:1;min-height:46px;max-height:120px}
+.chat-send{background:var(--orange);color:#000;border:none;border-radius:var(--r);
+           padding:0 18px;font-size:15px;font-weight:700;cursor:pointer;flex-shrink:0}
+.chat-send:disabled{opacity:.4}
+.chat-pending{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic}
+
 .hidden{display:none!important}
 </style>
 </head>
@@ -280,6 +299,16 @@ textarea::placeholder{color:var(--muted)}
       </div>
       <textarea id="reflection" placeholder="מה עבד? איפה צריך עזרה? מה מרגיש?"></textarea>
       <button class="btn-main" onclick="saveReflection()">שמור</button>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">💬 שיחה עם ג'יימס</div>
+      <div class="chat-thread" id="chat-thread"></div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" placeholder="כתוב לג'יימס — שאלה, מחשבה, קושי..."></textarea>
+        <button class="chat-send" onclick="sendMessage()">שלח</button>
+      </div>
+      <div class="chat-pending" id="chat-pending"></div>
     </div>
 
     <div class="sec">
@@ -688,6 +717,55 @@ function render(){
   });
 
   renderHistory();
+  renderChat();
+}
+
+// ══ CHAT WITH JAMES ═════════════════════════════════════════════════════════
+function renderChat(){
+  var thread = document.getElementById('chat-thread');
+  if(!thread) return;
+  if(!trackingData.messages) trackingData.messages = [];
+  var msgs = trackingData.messages;
+  thread.innerHTML = '';
+  if(!msgs.length){
+    thread.innerHTML = '<div class="chat-empty">עדיין לא דיברתם.\nכתוב לג\'יימס מה שעל הלב — שאלה על הרגל, קושי, מחשבה.\nהוא יענה בפעם הבאה שתסנכרן.</div>';
+  }
+  msgs.forEach(function(m){
+    var div = document.createElement('div');
+    var who = m.from==='james';
+    div.className = 'chat-bubble '+(who?'james':'omer');
+    var t = m.t ? new Date(m.t) : null;
+    var tlbl = t ? (('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2)+' · '+t.getDate()+'/'+(t.getMonth()+1)) : '';
+    div.innerHTML =
+      '<div class="chat-from '+(who?'j':'')+'">'+(who?'🎯 ג\'יימס':'אתה')+'</div>'+
+      escapeHtml(m.text)+
+      (tlbl?'<div class="chat-time">'+tlbl+'</div>':'');
+    thread.appendChild(div);
+  });
+  thread.scrollTop = thread.scrollHeight;
+
+  // pending hint — unanswered omer messages
+  var pend = document.getElementById('chat-pending');
+  var lastOmer = -1, lastJames = -1;
+  msgs.forEach(function(m,i){ if(m.from==='james') lastJames=i; else lastOmer=i; });
+  pend.textContent = (lastOmer>lastJames && lastOmer>=0)
+    ? '⏳ ג\'יימס יענה כשתפתח /james-clear במחשב' : '';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function sendMessage(){
+  var inp = document.getElementById('chat-input');
+  var text = inp.value.trim();
+  if(!text) return;
+  if(!trackingData.messages) trackingData.messages = [];
+  trackingData.messages.push({ from:'omer', text:text, t:new Date().toISOString() });
+  inp.value = '';
+  renderChat();
+  await saveData();
+  toast('נשלח ✓');
 }
 
 // ══ HABIT DETAIL ════════════════════════════════════════════════════════════
