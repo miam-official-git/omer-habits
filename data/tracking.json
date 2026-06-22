@@ -52,7 +52,9 @@
       "strength": true,
       "tefillin": true,
       "mia": true,
-      "family": true
+      "family": true,
+      "reflection": "",
+      "mood": null
     }
   }
 }
