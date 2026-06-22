@@ -384,9 +384,9 @@ textarea::placeholder{color:var(--muted)}
       </div>
     </div>
     <div class="d-stats">
-      <div class="d-stat"><div class="d-stat-num" id="m-done"></div><div class="d-stat-lbl">בוצעו</div></div>
-      <div class="d-stat"><div class="d-stat-num" id="m-tot"></div><div class="d-stat-lbl">ימים נדרשים</div></div>
-      <div class="d-stat"><div class="d-stat-num" id="m-pct"></div><div class="d-stat-lbl">אחוז</div></div>
+      <div class="d-stat"><div class="d-stat-num" id="m-done"></div><div class="d-stat-lbl" id="m-done-lbl">בוצעו</div></div>
+      <div class="d-stat"><div class="d-stat-num" id="m-tot"></div><div class="d-stat-lbl" id="m-tot-lbl">ימים נדרשים</div></div>
+      <div class="d-stat"><div class="d-stat-num" id="m-pct"></div><div class="d-stat-lbl" id="m-pct-lbl">אחוז</div></div>
     </div>
     <div class="d-hist-title">יום-יום — מה נספר</div>
     <div id="m-days"></div>
@@ -563,6 +563,9 @@ function dayLabel(days){
   return days;
 }
 
+// ערך "בוצע" — true, או טקסט לא-ריק (למשל שמות בני משפחה)
+function isDone(v){ return v===true || (typeof v==='string' && v.trim()!==''); }
+
 // התאריך הראשון שבו נרשם משהו (true/false) — ממנו מתחילים לספור
 function firstTrackedDate(log){
   var dates = Object.keys(log).filter(function(ds){
@@ -711,22 +714,34 @@ function render(){
   var mStart = new Date(now2.getFullYear(), now2.getMonth(), 1);
   var firstTrk = firstTrackedDate(log);
   if(firstTrk && firstTrk > mStart) mStart = firstTrk;  // ספור מהיום שהתחלת
-  active.filter(function(h){ return h.days!=='weekly'; }).forEach(function(h){
-    var done2=0, tot2=0;
-    for(var d2=new Date(mStart); d2<=now2; d2.setDate(d2.getDate()+1)){
-      if(!applicable(h,d2)) continue;
-      tot2++;
-      if((log[dayStr(d2)]||{})[h.id]===true) done2++;
-    }
-    var pct = tot2>0?Math.round(done2/tot2*100):0;
-    var col = pct>=80?'var(--green)':pct>=50?'var(--orange)':'var(--red)';
+  active.forEach(function(h){
     var div = document.createElement('div');
     div.className = 'mcell';
     div.style.cursor = 'pointer';
-    div.innerHTML =
-      '<div style="font-size:18px">'+h.icon+'</div>'+
-      '<div class="mcell-pct" style="color:'+col+'">'+pct+'%</div>'+
-      '<div class="mcell-sub">'+done2+'/'+tot2+'</div>';
+    if(h.days==='weekly'){
+      // הרגל שבועי (משפחה) — סופרים ימי קשר, לא אחוז יומי
+      var cd=0;
+      for(var dw=new Date(mStart); dw<=now2; dw.setDate(dw.getDate()+1)){
+        if(isDone((log[dayStr(dw)]||{})[h.id])) cd++;
+      }
+      div.innerHTML =
+        '<div style="font-size:18px">'+h.icon+'</div>'+
+        '<div class="mcell-pct" style="color:var(--orange)">'+cd+'</div>'+
+        '<div class="mcell-sub">ימי קשר</div>';
+    } else {
+      var done2=0, tot2=0;
+      for(var d2=new Date(mStart); d2<=now2; d2.setDate(d2.getDate()+1)){
+        if(!applicable(h,d2)) continue;
+        tot2++;
+        if((log[dayStr(d2)]||{})[h.id]===true) done2++;
+      }
+      var pct = tot2>0?Math.round(done2/tot2*100):0;
+      var col = pct>=80?'var(--green)':pct>=50?'var(--orange)':'var(--red)';
+      div.innerHTML =
+        '<div style="font-size:18px">'+h.icon+'</div>'+
+        '<div class="mcell-pct" style="color:'+col+'">'+pct+'%</div>'+
+        '<div class="mcell-sub">'+done2+'/'+tot2+'</div>';
+    }
     (function(hid){ div.onclick = function(){ openMonth(hid); }; })(h.id);
     mg.appendChild(div);
   });
@@ -888,13 +903,48 @@ function openMonth(id){
 
   var DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
   var rows = '', done=0, tot=0;
+
+  if(h.days==='weekly'){
+    // הרגל שבועי (משפחה) — ימי קשר ועם מי, ממוצע לשבוע
+    var rangeDays=0;
+    for(var dw=new Date(mStart); dw<=now; dw.setDate(dw.getDate()+1)){
+      rangeDays++;
+      var dsw = dayStr(dw);
+      var vw = (log[dsw]||{})[id];
+      var nw = (log[dsw]&&log[dsw].notes||{})[id] || '';
+      if(!isDone(vw)) continue;
+      done++;
+      var who = (typeof vw==='string' && vw.trim()) ? vw : (nw||'היה קשר');
+      rows += '<div class="d-hist-row">'+
+        '<div class="d-hist-mark y">✓</div>'+
+        '<div class="d-hist-date">'+DAYS[dw.getDay()]+' '+dw.getDate()+'/'+(dw.getMonth()+1)+'</div>'+
+        '<div class="d-hist-note">'+escapeHtml(who)+'</div></div>';
+    }
+    // ימי קשר ב-7 הימים האחרונים (מדד כנה, לא אקסטרפולציה)
+    var last7=0;
+    for(var k=0;k<7;k++){
+      var d7=new Date(now); d7.setDate(now.getDate()-k);
+      if(isDone((log[dayStr(d7)]||{})[id])) last7++;
+    }
+    document.getElementById('m-done').textContent = done;
+    document.getElementById('m-done-lbl').textContent = 'ימי קשר החודש';
+    document.getElementById('m-tot').textContent = rangeDays;
+    document.getElementById('m-tot-lbl').textContent = 'מתוך ימים';
+    document.getElementById('m-pct').textContent = last7;
+    document.getElementById('m-pct-lbl').textContent = 'ב-7 ימים';
+    document.getElementById('m-days').innerHTML = rows || '<div class="hist-empty">עדיין אין ימי קשר החודש</div>';
+    document.getElementById('month-modal').classList.remove('hidden');
+    return;
+  }
+
+  // הרגל יומי/ימי-חול — אחוז ביצוע
   for(var d=new Date(mStart); d<=now; d.setDate(d.getDate()+1)){
     var ds = dayStr(d);
     var app = applicable(h, d);
     var v = (log[ds]||{})[id];
     var note = (log[ds]&&log[ds].notes||{})[id] || '';
     var status, mark, cls;
-    if(!app){ status='לא נדרש (' + (d.getDay()===5?'שישי':d.getDay()===6?'שבת':'') + ')'; mark='–'; cls=''; }
+    if(!app){ status='לא נדרש'; mark='–'; cls=''; }
     else { tot++;
       if(v===true){ done++; status=note||'בוצע'; mark='✓'; cls='y'; }
       else { status='לא בוצע'; mark='✗'; cls='n'; }
@@ -903,11 +953,14 @@ function openMonth(id){
     rows += '<div class="d-hist-row">'+
       '<div class="d-hist-mark '+cls+'">'+mark+'</div>'+
       '<div class="d-hist-date">'+DAYS[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1)+'</div>'+
-      '<div class="d-hist-note">'+status+'</div></div>';
+      '<div class="d-hist-note">'+escapeHtml(status)+'</div></div>';
   }
   document.getElementById('m-done').textContent = done;
+  document.getElementById('m-done-lbl').textContent = 'בוצעו';
   document.getElementById('m-tot').textContent  = tot;
+  document.getElementById('m-tot-lbl').textContent = 'ימים נדרשים';
   document.getElementById('m-pct').textContent   = (tot>0?Math.round(done/tot*100):0)+'%';
+  document.getElementById('m-pct-lbl').textContent = 'אחוז';
   document.getElementById('m-days').innerHTML = rows || '<div class="hist-empty">אין ימים נספרים עדיין</div>';
   document.getElementById('month-modal').classList.remove('hidden');
 }
