@@ -24,7 +24,8 @@
       "name": "תפילין",
       "icon": "🙏",
       "days": "work",
-      "active": true
+      "active": true,
+      "desc": "להניח תפילין כל יום"
     },
     {
       "id": "mia",
