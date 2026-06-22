@@ -372,6 +372,27 @@ textarea::placeholder{color:var(--muted)}
   </div>
 </div>
 
+<!-- ══ MONTHLY BREAKDOWN MODAL ══ -->
+<div id="month-modal" class="modal hidden">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeMonth()">✕</button>
+    <div class="modal-head">
+      <div class="modal-head-icon" id="m-icon"></div>
+      <div>
+        <div class="modal-head-name" id="m-name"></div>
+        <div class="modal-head-desc" id="m-range"></div>
+      </div>
+    </div>
+    <div class="d-stats">
+      <div class="d-stat"><div class="d-stat-num" id="m-done"></div><div class="d-stat-lbl">בוצעו</div></div>
+      <div class="d-stat"><div class="d-stat-num" id="m-tot"></div><div class="d-stat-lbl">ימים נדרשים</div></div>
+      <div class="d-stat"><div class="d-stat-num" id="m-pct"></div><div class="d-stat-lbl">אחוז</div></div>
+    </div>
+    <div class="d-hist-title">יום-יום — מה נספר</div>
+    <div id="m-days"></div>
+  </div>
+</div>
+
 <!-- ══ EDIT HABIT MODAL ══ -->
 <div id="edit-modal" class="modal hidden">
   <div class="modal-box">
@@ -701,10 +722,12 @@ function render(){
     var col = pct>=80?'var(--green)':pct>=50?'var(--orange)':'var(--red)';
     var div = document.createElement('div');
     div.className = 'mcell';
+    div.style.cursor = 'pointer';
     div.innerHTML =
       '<div style="font-size:18px">'+h.icon+'</div>'+
       '<div class="mcell-pct" style="color:'+col+'">'+pct+'%</div>'+
       '<div class="mcell-sub">'+done2+'/'+tot2+'</div>';
+    (function(hid){ div.onclick = function(){ openMonth(hid); }; })(h.id);
     mg.appendChild(div);
   });
 
@@ -846,6 +869,49 @@ async function saveHabitNote(){
   openDetail(detailHabitId);
   render();
 }
+
+// ══ MONTHLY BREAKDOWN ═══════════════════════════════════════════════════════
+function openMonth(id){
+  var h = trackingData.habits.find(function(x){ return x.id===id; });
+  if(!h) return;
+  var log = trackingData.log;
+  document.getElementById('m-icon').textContent = h.icon;
+  document.getElementById('m-name').textContent = h.name;
+
+  var now = new Date(), mStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var firstTrk = firstTrackedDate(log);
+  if(firstTrk && firstTrk > mStart) mStart = firstTrk;
+
+  var MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  document.getElementById('m-range').textContent =
+    'נספר מ-'+mStart.getDate()+' '+MONTHS[mStart.getMonth()]+' עד היום · '+dayLabel(h.days);
+
+  var DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  var rows = '', done=0, tot=0;
+  for(var d=new Date(mStart); d<=now; d.setDate(d.getDate()+1)){
+    var ds = dayStr(d);
+    var app = applicable(h, d);
+    var v = (log[ds]||{})[id];
+    var note = (log[ds]&&log[ds].notes||{})[id] || '';
+    var status, mark, cls;
+    if(!app){ status='לא נדרש (' + (d.getDay()===5?'שישי':d.getDay()===6?'שבת':'') + ')'; mark='–'; cls=''; }
+    else { tot++;
+      if(v===true){ done++; status=note||'בוצע'; mark='✓'; cls='y'; }
+      else { status='לא בוצע'; mark='✗'; cls='n'; }
+    }
+    if(!app) continue; // מציגים רק ימים שנספרים
+    rows += '<div class="d-hist-row">'+
+      '<div class="d-hist-mark '+cls+'">'+mark+'</div>'+
+      '<div class="d-hist-date">'+DAYS[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1)+'</div>'+
+      '<div class="d-hist-note">'+status+'</div></div>';
+  }
+  document.getElementById('m-done').textContent = done;
+  document.getElementById('m-tot').textContent  = tot;
+  document.getElementById('m-pct').textContent   = (tot>0?Math.round(done/tot*100):0)+'%';
+  document.getElementById('m-days').innerHTML = rows || '<div class="hist-empty">אין ימים נספרים עדיין</div>';
+  document.getElementById('month-modal').classList.remove('hidden');
+}
+function closeMonth(){ document.getElementById('month-modal').classList.add('hidden'); }
 
 // ══ EDIT HABIT ══════════════════════════════════════════════════════════════
 var editHabitId = null;
