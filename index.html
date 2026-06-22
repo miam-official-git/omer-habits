@@ -746,8 +746,8 @@ function render(){
     mg.appendChild(div);
   });
 
-  // Reflection
-  document.getElementById('reflection').value = todayEntry.reflection || '';
+  // Reflection — תיבה תמיד ריקה ומוכנה לרישום חדש (הרישומים מצטברים בהיסטוריה)
+  document.getElementById('reflection').value = '';
   if(todayEntry.mood) setMood(todayEntry.mood, false);
 
   // Manage list
@@ -1001,7 +1001,8 @@ function renderHistory(){
   hl.innerHTML = '';
   var log = trackingData.log;
   var dates = Object.keys(log).filter(function(ds){
-    return log[ds].reflection || log[ds].mood;
+    var e = log[ds];
+    return (Array.isArray(e.journal) && e.journal.length) || e.reflection || e.mood;
   }).sort().reverse();
   if(!dates.length){ hl.innerHTML = '<div class="hist-empty">עדיין לא כתבת רישומים. מה שתכתוב ביומן יופיע כאן.</div>'; return; }
   var MOODS={1:'😔',2:'😐',3:'😊',4:'🔥'};
@@ -1013,6 +1014,17 @@ function renderHistory(){
     var d2 = new Date(dt);
     var appH = active.filter(function(h){ return applicable(h,d2) && h.days!=='weekly'; });
     var done = appH.filter(function(h){ return entry[h.id]===true; }).length;
+
+    // אוסף את כל הרישומים של היום: legacy reflection + journal מצטבר
+    var entries = [];
+    if(entry.reflection) entries.push({ text:entry.reflection, t:null });
+    if(Array.isArray(entry.journal)) entry.journal.forEach(function(j){ entries.push(j); });
+
+    var textHtml = entries.map(function(e){
+      var tm = e.t ? (('0'+new Date(e.t).getHours()).slice(-2)+':'+('0'+new Date(e.t).getMinutes()).slice(-2)) : '';
+      return '<div class="hist-entry-text">'+(tm?'<span style="color:var(--muted);font-size:11px">'+tm+' · </span>':'')+escapeHtml(e.text)+'</div>';
+    }).join('');
+
     var div = document.createElement('div');
     div.className = 'hist-entry';
     div.innerHTML =
@@ -1020,7 +1032,7 @@ function renderHistory(){
         '<div class="hist-entry-date">'+(entry.mood?MOODS[entry.mood]+' ':'')+DAYS[dt.getDay()]+' · '+dt.getDate()+'/'+(dt.getMonth()+1)+'</div>'+
         '<div class="hist-entry-score">'+done+'/'+appH.length+'</div>'+
       '</div>'+
-      (entry.reflection?'<div class="hist-entry-text">'+entry.reflection+'</div>':'');
+      textHtml;
     hl.appendChild(div);
   });
 }
@@ -1060,11 +1072,18 @@ function setMood(m, doSave){
 
 async function saveReflection(){
   var ts = todayStr();
+  var box = document.getElementById('reflection');
+  var text = box.value.trim();
   if(!trackingData.log[ts]) trackingData.log[ts]={};
-  trackingData.log[ts].reflection = document.getElementById('reflection').value.trim();
+  if(text){
+    if(!Array.isArray(trackingData.log[ts].journal)) trackingData.log[ts].journal = [];
+    trackingData.log[ts].journal.push({ text:text, t:new Date().toISOString() });
+  }
   trackingData.log[ts].mood = currentMood;
+  box.value = '';                 // מאפס את התיבה לרישום חדש
+  renderHistory();
   await saveData();
-  toast('נשמר ✓');
+  toast(text ? 'נשמר ✓' : 'מצב רוח נשמר ✓');
 }
 
 async function delHabit(id){
