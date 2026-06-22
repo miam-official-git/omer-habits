@@ -1,0 +1,43 @@
+{
+  "habits": [
+    {
+      "id": "sport",
+      "name": "ריצה / חבל",
+      "icon": "🏃",
+      "days": "work",
+      "active": true
+    },
+    {
+      "id": "strength",
+      "name": "שכיבות / מתח",
+      "icon": "💪",
+      "days": "work",
+      "active": true
+    },
+    {
+      "id": "tefillin",
+      "name": "תפילין",
+      "icon": "🙏",
+      "days": "work",
+      "active": true
+    },
+    {
+      "id": "mia",
+      "name": "מחווה למיה",
+      "icon": "❤️",
+      "days": "daily",
+      "active": true
+    },
+    {
+      "id": "family",
+      "name": "שיחות משפחה",
+      "icon": "👨‍👩‍👧",
+      "days": "weekly",
+      "active": true
+    }
+  ],
+  "log": {},
+  "last_morning": null,
+  "last_midday": null,
+  "last_evening": null
+}
