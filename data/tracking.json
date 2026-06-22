@@ -36,7 +36,11 @@
       "active": true
     }
   ],
-  "log": {},
+  "log": {
+    "2026-06-22": {
+      "sport": true
+    }
+  },
   "last_morning": null,
   "last_midday": null,
   "last_evening": null
