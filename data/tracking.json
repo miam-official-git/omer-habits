@@ -16,7 +16,8 @@
       "name": "שכיבות / מתח",
       "icon": "💪",
       "days": "work",
-      "active": true
+      "active": true,
+      "desc": "100 שכיבות סמיכה או 30 מתח"
     },
     {
       "id": "tefillin",
