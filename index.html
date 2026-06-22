@@ -134,6 +134,69 @@ textarea::placeholder{color:var(--muted)}
        transition:opacity .25s;pointer-events:none;z-index:99;white-space:nowrap}
 .toast.show{opacity:1}
 
+/* ── HABIT CARD DETAIL BUTTON ── */
+.hcard-detail{width:24px;height:24px;border-radius:7px;background:var(--card2);
+              display:flex;align-items:center;justify-content:center;color:var(--muted);
+              font-size:14px;flex-shrink:0;transition:all .15s}
+.hcard-detail:active{background:var(--orange);color:#000}
+
+/* ── MODAL ── */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;
+       display:flex;align-items:flex-end;justify-content:center;padding:0}
+.modal-box{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:520px;
+           max-height:90vh;overflow-y:auto;padding:20px 16px 30px;
+           border-top:1px solid var(--card2);animation:slideup .25s ease}
+@keyframes slideup{from{transform:translateY(40px);opacity:.5}to{transform:translateY(0);opacity:1}}
+.modal-close{float:left;background:var(--card);border:none;color:var(--muted);
+             width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer}
+.modal-head{display:flex;align-items:center;gap:12px;margin-bottom:6px;clear:both;padding-top:6px}
+.modal-head-icon{font-size:34px}
+.modal-head-name{font-size:20px;font-weight:700;color:var(--orange)}
+.modal-head-desc{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+/* ── DETAIL STATS ── */
+.d-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}
+.d-stat{background:var(--card);border-radius:12px;padding:12px 6px;text-align:center}
+.d-stat-num{font-size:24px;font-weight:700;color:var(--orange);line-height:1}
+.d-stat-lbl{font-size:10px;color:var(--muted);margin-top:5px}
+
+/* ── DETAIL NOTE ── */
+.d-note-box{background:var(--card);border-radius:14px;padding:14px;margin-bottom:16px}
+.d-note-box label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}
+.d-note-box input{width:100%;background:var(--bg);border:1px solid #2d3148;border-radius:10px;
+                  color:var(--text);padding:11px 13px;font-size:14px;direction:rtl;outline:none}
+.d-note-box input:focus{border-color:var(--orange)}
+
+/* ── DETAIL HISTORY ── */
+.d-hist-title{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.6px;
+              text-transform:uppercase;margin:14px 0 10px}
+.d-hist-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);
+            border-radius:10px;margin-bottom:6px}
+.d-hist-mark{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
+             justify-content:center;font-size:12px;flex-shrink:0}
+.d-hist-mark.y{background:var(--green);color:#000}
+.d-hist-mark.n{background:var(--red);color:#000}
+.d-hist-date{font-size:13px;color:var(--text);min-width:64px}
+.d-hist-note{font-size:12px;color:var(--muted);flex:1}
+
+/* ── EDIT FORM ── */
+.edit-form input,.edit-form select,.edit-form textarea{width:100%;background:var(--card);
+  border:1px solid #2d3148;border-radius:10px;color:var(--text);padding:11px 13px;
+  font-size:14px;margin-bottom:10px;direction:rtl;outline:none;font-family:inherit}
+.edit-form textarea{min-height:60px;resize:vertical}
+.edit-form input:focus,.edit-form select:focus,.edit-form textarea:focus{border-color:var(--orange)}
+.edit-form label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.btn-edit{background:rgba(245,166,35,.15);border:none;color:var(--orange);
+          border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;margin-left:6px}
+
+/* ── HISTORY LOG ── */
+.hist-entry{background:var(--card);border-radius:12px;padding:13px 15px;margin-bottom:8px}
+.hist-entry-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.hist-entry-date{font-size:13px;font-weight:600;color:var(--orange)}
+.hist-entry-score{font-size:12px;color:var(--muted)}
+.hist-entry-text{font-size:14px;color:var(--text);line-height:1.5}
+.hist-empty{color:var(--muted);font-size:13px;text-align:center;padding:20px}
+
 .hidden{display:none!important}
 </style>
 </head>
@@ -220,6 +283,16 @@ textarea::placeholder{color:var(--muted)}
     </div>
 
     <div class="sec">
+      <div class="sec-title manage-hdr" onclick="toggleHistory()">
+        <span>📒 היסטוריית רישומים</span>
+        <span id="htog" style="color:var(--muted);font-size:12px">▼ פתח</span>
+      </div>
+      <div id="hbody" class="hidden" style="margin-top:10px">
+        <div id="hist-list"></div>
+      </div>
+    </div>
+
+    <div class="sec">
       <div class="sec-title manage-hdr" onclick="toggleManage()">
         <span>ניהול הרגלים</span>
         <span id="mtog" style="color:var(--muted);font-size:12px">▼ פתח</span>
@@ -243,6 +316,58 @@ textarea::placeholder{color:var(--muted)}
     </div>
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- ══ HABIT DETAIL MODAL ══ -->
+<div id="detail-modal" class="modal hidden">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeDetail()">✕</button>
+    <div class="modal-head">
+      <div class="modal-head-icon" id="d-icon"></div>
+      <div>
+        <div class="modal-head-name" id="d-name"></div>
+        <div class="modal-head-desc" id="d-desc"></div>
+      </div>
+    </div>
+    <div class="d-stats">
+      <div class="d-stat"><div class="d-stat-num" id="d-streak"></div><div class="d-stat-lbl">רצף נוכחי</div></div>
+      <div class="d-stat"><div class="d-stat-num" id="d-month"></div><div class="d-stat-lbl">החודש</div></div>
+      <div class="d-stat"><div class="d-stat-num" id="d-total"></div><div class="d-stat-lbl">סה״כ ימים</div></div>
+    </div>
+    <div class="d-note-box">
+      <label>פרטי היום — מה בדיוק עשית?</label>
+      <input id="d-note" placeholder="למשל: 1.29 ק״מ · 7:08 דק׳ / 100 שכיבות">
+      <button class="btn-main" onclick="saveHabitNote()" style="margin-top:10px">שמור פרטים</button>
+    </div>
+    <div class="d-hist-title">היסטוריה</div>
+    <div id="d-history"></div>
+  </div>
+</div>
+
+<!-- ══ EDIT HABIT MODAL ══ -->
+<div id="edit-modal" class="modal hidden">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeEdit()">✕</button>
+    <div class="modal-head" style="margin-bottom:18px">
+      <div class="modal-head-icon">✏️</div>
+      <div><div class="modal-head-name">עריכת הרגל</div></div>
+    </div>
+    <div class="edit-form">
+      <label>אייקון</label>
+      <input id="e-icon" placeholder="אמוג'י">
+      <label>שם ההרגל</label>
+      <input id="e-name" placeholder="שם">
+      <label>תיאור — מה בדיוק ההרגל?</label>
+      <textarea id="e-desc" placeholder="למשל: ריצה של 1 ק״מ או קפיצה בחבל 5 דקות"></textarea>
+      <label>תדירות</label>
+      <select id="e-days">
+        <option value="daily">כל יום</option>
+        <option value="work">ראשון–חמישי בלבד</option>
+        <option value="weekly">שבועי</option>
+      </select>
+      <button class="btn-main" onclick="saveEdit()">שמור שינויים</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -342,15 +467,18 @@ function showMain(){
 
 // ══ DATA HELPERS ═════════════════════════════════════════════════════════════
 var DEFAULT_HABITS = [
-  {id:'sport',   name:'ריצה / חבל',  icon:'🏃',days:'work',  active:true},
-  {id:'strength',name:'שכיבות / מתח',icon:'💪',days:'work',  active:true},
-  {id:'tefillin',name:'תפילין',       icon:'🙏',days:'work',  active:true},
-  {id:'mia',     name:'מחווה למיה',  icon:'❤️',days:'daily', active:true},
-  {id:'family',  name:'שיחות משפחה', icon:'👨‍👩‍👧',days:'weekly',active:true}
+  {id:'sport',   name:'ריצה / חבל',  icon:'🏃',days:'work',  active:true,desc:'ריצה של 1 ק״מ או קפיצה בחבל 5 דקות'},
+  {id:'strength',name:'שכיבות / מתח',icon:'💪',days:'work',  active:true,desc:'100 שכיבות סמיכה או 30 מתח'},
+  {id:'tefillin',name:'תפילין',       icon:'🙏',days:'work',  active:true,desc:'להניח תפילין בבוקר'},
+  {id:'mia',     name:'מחווה למיה',  icon:'❤️',days:'daily', active:true,desc:'מחווה יומית אחת — הודעה או מעשה קטן'},
+  {id:'family',  name:'שיחות משפחה', icon:'👨‍👩‍👧',days:'weekly',active:true,desc:'שיחה עם הורים פעמיים בשבוע, עם כל אח פעם'}
 ];
 
-function todayStr(){ return new Date().toISOString().slice(0,10); }
-function dayStr(d){ return d.toISOString().slice(0,10); }
+function dayStr(d){
+  var y=d.getFullYear(), m=('0'+(d.getMonth()+1)).slice(-2), day=('0'+d.getDate()).slice(-2);
+  return y+'-'+m+'-'+day;
+}
+function todayStr(){ return dayStr(new Date()); }
 
 function isWork(d){
   var day = d.getDay(); // 0=Sun,1=Mon,...,6=Sat
@@ -457,10 +585,15 @@ function render(){
     var div = document.createElement('div');
     div.className = cls;
     div.innerHTML =
+      '<div class="hcard-detail">›</div>'+
       '<div class="hcard-icon">'+h.icon+'</div>'+
       '<div class="hcard-info"><div class="hcard-name">'+h.name+'</div><div class="hcard-sub">'+sub+'</div></div>'+
       '<div class="hcard-check">'+chk+'</div>';
-    (function(hh){ div.onclick = function(){ if(hh.applicable) toggleHabit(hh); }; })(h);
+    (function(hh){
+      div.querySelector('.hcard-detail').onclick = function(e){ e.stopPropagation(); openDetail(hh.id); };
+      div.querySelector('.hcard-check').onclick   = function(e){ e.stopPropagation(); if(hh.applicable) toggleHabit(hh); };
+      div.onclick = function(){ if(hh.applicable) toggleHabit(hh); };
+    })(h);
     list.appendChild(div);
   });
 
@@ -545,12 +678,147 @@ function render(){
   data.habits.forEach(function(h){
     var div = document.createElement('div');
     div.className = 'mcard';
+    var descLine = h.desc ? '<div class="mcard-sub2">'+h.desc+'</div>' : '';
     div.innerHTML =
       '<span style="font-size:18px">'+h.icon+'</span>'+
-      '<div class="mcard-info"><div>'+h.name+'</div><div class="mcard-sub2">'+dayLabel(h.days)+'</div></div>'+
+      '<div class="mcard-info"><div>'+h.name+'</div><div class="mcard-sub2">'+dayLabel(h.days)+'</div>'+descLine+'</div>'+
+      '<button class="btn-edit" onclick="openEdit(\''+h.id+'\')">ערוך</button>'+
       '<button class="btn-del" onclick="delHabit(\''+h.id+'\')">מחק</button>';
     ml.appendChild(div);
   });
+
+  renderHistory();
+}
+
+// ══ HABIT DETAIL ════════════════════════════════════════════════════════════
+var detailHabitId = null;
+function openDetail(id){
+  detailHabitId = id;
+  var h = trackingData.habits.find(function(x){ return x.id===id; });
+  if(!h) return;
+  var log = trackingData.log;
+  document.getElementById('d-icon').textContent = h.icon;
+  document.getElementById('d-name').textContent = h.name;
+  document.getElementById('d-desc').textContent = h.desc || dayLabel(h.days);
+
+  // stats
+  document.getElementById('d-streak').textContent = calcStreak(log, id);
+  var now = new Date(), mStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var mDone=0, mTot=0, total=0;
+  Object.keys(log).forEach(function(ds){ if(log[ds][id]===true) total++; });
+  for(var d=new Date(mStart); d<=now; d.setDate(d.getDate()+1)){
+    if(!applicable(h,d)) continue;
+    mTot++;
+    if((log[dayStr(d)]||{})[id]===true) mDone++;
+  }
+  document.getElementById('d-month').textContent = (mTot>0?Math.round(mDone/mTot*100):0)+'%';
+  document.getElementById('d-total').textContent = total;
+
+  // today's note
+  var ts = todayStr();
+  document.getElementById('d-note').value = ((log[ts]||{}).notes||{})[id] || '';
+
+  // history list — days with a record, newest first
+  var hist = document.getElementById('d-history');
+  hist.innerHTML = '';
+  var dates = Object.keys(log).filter(function(ds){ return log[ds][id]===true || log[ds][id]===false; }).sort().reverse();
+  if(!dates.length){ hist.innerHTML = '<div class="hist-empty">עדיין אין רישומים להרגל הזה</div>'; }
+  dates.slice(0,30).forEach(function(ds){
+    var done = log[ds][id]===true;
+    var note = (log[ds].notes||{})[id] || '';
+    var dt = new Date(ds);
+    var DAYS=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+    var lbl = DAYS[dt.getDay()]+' '+dt.getDate()+'/'+(dt.getMonth()+1);
+    var row = document.createElement('div');
+    row.className = 'd-hist-row';
+    row.innerHTML =
+      '<div class="d-hist-mark '+(done?'y':'n')+'">'+(done?'✓':'✗')+'</div>'+
+      '<div class="d-hist-date">'+lbl+'</div>'+
+      '<div class="d-hist-note">'+(note||(done?'בוצע':'לא בוצע'))+'</div>';
+    hist.appendChild(row);
+  });
+
+  document.getElementById('detail-modal').classList.remove('hidden');
+}
+function closeDetail(){ document.getElementById('detail-modal').classList.add('hidden'); detailHabitId=null; }
+
+async function saveHabitNote(){
+  if(!detailHabitId) return;
+  var ts = todayStr();
+  if(!trackingData.log[ts]) trackingData.log[ts]={};
+  if(!trackingData.log[ts].notes) trackingData.log[ts].notes={};
+  trackingData.log[ts].notes[detailHabitId] = document.getElementById('d-note').value.trim();
+  // marking a note implies done
+  if(trackingData.log[ts][detailHabitId]===undefined) trackingData.log[ts][detailHabitId]=true;
+  await saveData();
+  toast('הפרטים נשמרו ✓');
+  openDetail(detailHabitId);
+  render();
+}
+
+// ══ EDIT HABIT ══════════════════════════════════════════════════════════════
+var editHabitId = null;
+function openEdit(id){
+  editHabitId = id;
+  var h = trackingData.habits.find(function(x){ return x.id===id; });
+  if(!h) return;
+  document.getElementById('e-icon').value = h.icon || '';
+  document.getElementById('e-name').value = h.name || '';
+  document.getElementById('e-desc').value = h.desc || '';
+  document.getElementById('e-days').value = h.days || 'daily';
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+function closeEdit(){ document.getElementById('edit-modal').classList.add('hidden'); editHabitId=null; }
+
+async function saveEdit(){
+  if(!editHabitId) return;
+  var h = trackingData.habits.find(function(x){ return x.id===editHabitId; });
+  if(!h) return;
+  h.icon = document.getElementById('e-icon').value.trim() || h.icon;
+  h.name = document.getElementById('e-name').value.trim() || h.name;
+  h.desc = document.getElementById('e-desc').value.trim();
+  h.days = document.getElementById('e-days').value;
+  closeEdit();
+  render();
+  await saveData();
+  toast('✏️ ההרגל עודכן');
+}
+
+// ══ HISTORY LOG ═════════════════════════════════════════════════════════════
+function renderHistory(){
+  var hl = document.getElementById('hist-list');
+  if(!hl) return;
+  hl.innerHTML = '';
+  var log = trackingData.log;
+  var dates = Object.keys(log).filter(function(ds){
+    return log[ds].reflection || log[ds].mood;
+  }).sort().reverse();
+  if(!dates.length){ hl.innerHTML = '<div class="hist-empty">עדיין לא כתבת רישומים. מה שתכתוב ביומן יופיע כאן.</div>'; return; }
+  var MOODS={1:'😔',2:'😐',3:'😊',4:'🔥'};
+  var DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  var active = trackingData.habits.filter(function(h){ return h.active; });
+  dates.forEach(function(ds){
+    var entry = log[ds];
+    var dt = new Date(ds);
+    var d2 = new Date(dt);
+    var appH = active.filter(function(h){ return applicable(h,d2) && h.days!=='weekly'; });
+    var done = appH.filter(function(h){ return entry[h.id]===true; }).length;
+    var div = document.createElement('div');
+    div.className = 'hist-entry';
+    div.innerHTML =
+      '<div class="hist-entry-head">'+
+        '<div class="hist-entry-date">'+(entry.mood?MOODS[entry.mood]+' ':'')+DAYS[dt.getDay()]+' · '+dt.getDate()+'/'+(dt.getMonth()+1)+'</div>'+
+        '<div class="hist-entry-score">'+done+'/'+appH.length+'</div>'+
+      '</div>'+
+      (entry.reflection?'<div class="hist-entry-text">'+entry.reflection+'</div>':'');
+    hl.appendChild(div);
+  });
+}
+
+function toggleHistory(){
+  var b=document.getElementById('hbody'), t=document.getElementById('htog');
+  var open=b.classList.toggle('hidden');
+  t.textContent = open?'▼ פתח':'▲ סגור';
 }
 
 // ══ ACTIONS ═════════════════════════════════════════════════════════════════
