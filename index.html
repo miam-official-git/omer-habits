@@ -576,17 +576,18 @@ function firstTrackedDate(log){
 }
 
 // ══ SAVE ════════════════════════════════════════════════════════════════════
-var saving = false;
-async function saveData(){
-  if(saving) return;
-  saving = true;
-  try {
-    trackingSha = await ghPut(DATA_PATH, trackingData, trackingSha);
-  } catch(e) {
-    toast('שגיאת שמירה: ' + e.message);
-  } finally {
-    saving = false;
-  }
+// תור שמירות: משרשר את כל הקריאות כך שאף שמירה לא נופלת,
+// וכל שמירה משתמשת ב-sha המעודכן מהשמירה הקודמת.
+var saveChain = Promise.resolve();
+function saveData(){
+  saveChain = saveChain.then(async function(){
+    try {
+      trackingSha = await ghPut(DATA_PATH, trackingData, trackingSha);
+    } catch(e) {
+      toast('שגיאת שמירה: ' + e.message);
+    }
+  });
+  return saveChain;
 }
 
 // ══ RENDER ══════════════════════════════════════════════════════════════════
