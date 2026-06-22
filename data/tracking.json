@@ -32,7 +32,8 @@
       "name": "מחווה למיה",
       "icon": "❤️",
       "days": "daily",
-      "active": true
+      "active": true,
+      "desc": "לעשות משהו קטן אבל מיוחד עבור מיה"
     },
     {
       "id": "family",
