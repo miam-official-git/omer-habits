@@ -8,7 +8,8 @@
       "name": "ריצה / חבל",
       "icon": "🏃",
       "days": "work",
-      "active": true
+      "active": true,
+      "desc": "ריצה של 1 ק\"מ או 100 שכיבות סמיכה"
     },
     {
       "id": "strength",
