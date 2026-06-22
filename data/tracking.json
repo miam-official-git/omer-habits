@@ -55,7 +55,10 @@
       "mia": true,
       "family": true,
       "reflection": "",
-      "mood": null
+      "mood": null,
+      "notes": {
+        "family": "דיברתי עם אביתר מור ואבא 3 בני משפחה"
+      }
     }
   }
 }
