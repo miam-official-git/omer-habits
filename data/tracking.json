@@ -36,7 +36,8 @@
       "name": "שיחות משפחה",
       "icon": "👨‍👩‍👧",
       "days": "weekly",
-      "active": true
+      "active": true,
+      "desc": "שיחה כל יום עם בן משפחה אחר"
     }
   ],
   "log": {
