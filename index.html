@@ -9,11 +9,23 @@
 :root{
   --bg:#0d0f1a;--card:#161926;--card2:#1e2235;
   --orange:#f5a623;--green:#4ade80;--red:#f87171;--gray:#374151;
-  --text:#e2e8f0;--muted:#64748b;--r:14px;
+  --text:#e2e8f0;--muted:#64748b;--r:14px;--border:#2d3148;
+  --hdr1:#1a1d2e;--hdr2:#0d0f1a;--input:#0d0f1a;--identity:#94a3b8;
 }
+html[data-theme="light"]{
+  --bg:#f4f6fb;--card:#ffffff;--card2:#eef2f9;
+  --orange:#d9870f;--green:#16a34a;--red:#dc2626;--gray:#cbd5e1;
+  --text:#1a1d2e;--muted:#64748b;--border:#d8deea;
+  --hdr1:#ffffff;--hdr2:#eef2f9;--input:#f4f6fb;--identity:#475569;
+}
+html[data-theme="light"] body{ -webkit-font-smoothing:antialiased }
+html[data-theme="light"] .hcard,
+html[data-theme="light"] .mood-btn,
+html[data-theme="light"] .chat-bubble.james,
+html[data-theme="light"] .month-grid > *{ box-shadow:0 1px 3px rgba(20,30,60,.06) }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",sans-serif;
-     font-size:15px;padding-bottom:60px;min-height:100vh}
+     font-size:15px;padding-bottom:60px;min-height:100vh;transition:background .2s,color .2s}
 
 /* ── SETUP ── */
 #setup{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
@@ -22,7 +34,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI"
 .setup-title{font-size:20px;font-weight:700;color:var(--orange);text-align:center}
 .setup-sub{font-size:13px;color:var(--muted);text-align:center;margin:6px 0 22px}
 .setup-label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
-.setup-input{width:100%;background:#0d0f1a;border:1px solid #2d3148;border-radius:10px;
+.setup-input{width:100%;background:var(--input);border:1px solid var(--border);border-radius:10px;
              color:var(--text);padding:11px 13px;font-size:14px;margin-bottom:14px;
              direction:ltr;outline:none;font-family:monospace}
 .setup-input:focus{border-color:var(--orange)}
@@ -33,7 +45,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI"
 .setup-err{color:var(--red);font-size:13px;text-align:center;margin-top:10px;display:none}
 
 /* ── HEADER ── */
-.hdr{background:linear-gradient(160deg,#1a1d2e,#0d0f1a);padding:18px 16px 14px;
+.hdr{background:linear-gradient(160deg,var(--hdr1),var(--hdr2));padding:18px 16px 14px;
      border-bottom:1px solid var(--card2);position:sticky;top:0;z-index:20}
 .hdr-row{display:flex;align-items:center;justify-content:space-between}
 .hdr-title{font-size:19px;font-weight:700;color:var(--orange)}
@@ -43,7 +55,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI"
 /* ── IDENTITY ── */
 .identity{margin:12px 16px 0;padding:10px 14px;background:var(--card);
           border-radius:var(--r);border-right:3px solid var(--orange);
-          font-size:13px;color:#94a3b8;font-style:italic}
+          font-size:13px;color:var(--identity);font-style:italic}
 
 /* ── WARNING ── */
 .warn{margin:10px 16px 0;padding:10px 14px;background:rgba(248,113,113,.1);
@@ -94,7 +106,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI"
           padding:8px 2px;text-align:center;font-size:22px;cursor:pointer;transition:all .15s}
 .mood-btn.active{border-color:var(--orange);background:rgba(245,166,35,.1)}
 .mood-lbl{font-size:9px;color:var(--muted);margin-top:2px}
-textarea{width:100%;background:var(--card);border:1px solid #2d3148;border-radius:var(--r);
+textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r);
          color:var(--text);padding:11px 13px;font-size:14px;font-family:inherit;
          resize:vertical;min-height:75px;direction:rtl;outline:none}
 textarea:focus{border-color:var(--orange)}
@@ -116,7 +128,7 @@ textarea::placeholder{color:var(--muted)}
 .btn-del{background:rgba(248,113,113,.15);border:none;color:var(--red);
          border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
 .add-form{background:var(--card2);border-radius:var(--r);padding:14px;margin-top:10px}
-.add-form input,.add-form select{width:100%;background:var(--card);border:1px solid #2d3148;
+.add-form input,.add-form select{width:100%;background:var(--card);border:1px solid var(--border);
   border-radius:8px;color:var(--text);padding:9px 12px;font-size:14px;margin-bottom:8px;
   direction:rtl;outline:none}
 .add-form input:focus,.add-form select:focus{border-color:var(--orange)}
@@ -163,7 +175,7 @@ textarea::placeholder{color:var(--muted)}
 /* ── DETAIL NOTE ── */
 .d-note-box{background:var(--card);border-radius:14px;padding:14px;margin-bottom:16px}
 .d-note-box label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}
-.d-note-box input{width:100%;background:var(--bg);border:1px solid #2d3148;border-radius:10px;
+.d-note-box input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;
                   color:var(--text);padding:11px 13px;font-size:14px;direction:rtl;outline:none}
 .d-note-box input:focus{border-color:var(--orange)}
 
@@ -181,7 +193,7 @@ textarea::placeholder{color:var(--muted)}
 
 /* ── EDIT FORM ── */
 .edit-form input,.edit-form select,.edit-form textarea{width:100%;background:var(--card);
-  border:1px solid #2d3148;border-radius:10px;color:var(--text);padding:11px 13px;
+  border:1px solid var(--border);border-radius:10px;color:var(--text);padding:11px 13px;
   font-size:14px;margin-bottom:10px;direction:rtl;outline:none;font-family:inherit}
 .edit-form textarea{min-height:60px;resize:vertical}
 .edit-form input:focus,.edit-form select:focus,.edit-form textarea:focus{border-color:var(--orange)}
@@ -215,6 +227,39 @@ textarea::placeholder{color:var(--muted)}
            padding:0 18px;font-size:15px;font-weight:700;cursor:pointer;flex-shrink:0}
 .chat-send:disabled{opacity:.4}
 .chat-pending{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic}
+
+/* ── HEADER ACTIONS ── */
+.hdr-actions{display:flex;align-items:center;gap:2px}
+
+/* ── SETTINGS ── */
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+         background:var(--card);border-radius:12px;padding:14px 15px;margin-bottom:10px}
+.set-row-info{flex:1}
+.set-row-title{font-size:14px;font-weight:600}
+.set-row-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+.set-btn{background:var(--orange);color:#000;border:none;border-radius:10px;
+         padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0}
+.set-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.set-btn.danger{background:rgba(248,113,113,.15);color:var(--red)}
+.set-status{font-size:11px;color:var(--muted);text-align:center;margin:4px 0 14px}
+/* toggle switch */
+.switch{position:relative;width:46px;height:26px;flex-shrink:0;cursor:pointer}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;inset:0;background:var(--gray);border-radius:26px;transition:.2s}
+.switch .slider:before{content:"";position:absolute;height:20px;width:20px;right:3px;top:3px;
+                       background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked + .slider{background:var(--green)}
+.switch input:checked + .slider:before{transform:translateX(-20px)}
+
+/* ── HABIT HISTORY FEED ── */
+.hh-row{display:flex;align-items:center;gap:11px;background:var(--card);
+        border-radius:12px;padding:11px 14px;margin-bottom:7px}
+.hh-icon{font-size:20px;flex-shrink:0}
+.hh-main{flex:1;min-width:0}
+.hh-name{font-size:14px;font-weight:500}
+.hh-note{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4;word-break:break-word}
+.hh-time{font-size:12px;color:var(--orange);font-weight:600;flex-shrink:0;text-align:left;min-width:48px}
+.hh-date{font-size:10px;color:var(--muted);margin-top:2px}
 
 .hidden{display:none!important}
 </style>
@@ -253,7 +298,10 @@ textarea::placeholder{color:var(--muted)}
   <div class="hdr">
     <div class="hdr-row">
       <div class="hdr-title">🎯 ג'יימס קליר</div>
-      <button class="settings-btn" onclick="logout()" title="התנתק">⚙</button>
+      <div class="hdr-actions">
+        <button class="settings-btn" id="theme-btn" onclick="toggleTheme()" title="יום/לילה">🌙</button>
+        <button class="settings-btn" onclick="openSettings()" title="הגדרות">⚙</button>
+      </div>
     </div>
     <div class="hdr-date" id="hdate"></div>
   </div>
@@ -312,6 +360,16 @@ textarea::placeholder{color:var(--muted)}
     </div>
 
     <div class="sec">
+      <div class="sec-title manage-hdr" onclick="toggleHabitHistory()">
+        <span>🏃 היסטוריית הרגלים</span>
+        <span id="hhtog" style="color:var(--muted);font-size:12px">▼ פתח</span>
+      </div>
+      <div id="hhbody" class="hidden" style="margin-top:10px">
+        <div id="hh-list"></div>
+      </div>
+    </div>
+
+    <div class="sec">
       <div class="sec-title manage-hdr" onclick="toggleHistory()">
         <span>📒 היסטוריית רישומים</span>
         <span id="htog" style="color:var(--muted);font-size:12px">▼ פתח</span>
@@ -345,6 +403,58 @@ textarea::placeholder{color:var(--muted)}
     </div>
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div id="settings-modal" class="modal hidden">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <div class="modal-head">
+      <div class="modal-head-icon">⚙️</div>
+      <div>
+        <div class="modal-head-name">הגדרות</div>
+        <div class="modal-head-desc">סנכרון, תצוגה וחיבור</div>
+      </div>
+    </div>
+    <div style="margin-top:18px"></div>
+
+    <div class="set-status" id="set-sync-status">—</div>
+
+    <div class="set-row">
+      <div class="set-row-info">
+        <div class="set-row-title">סנכרן עכשיו</div>
+        <div class="set-row-sub">משוך את העדכונים האחרונים מגיטהאב (תשובות של ג'יימס, שינויים ממכשירים אחרים).</div>
+      </div>
+      <button class="set-btn" id="sync-now-btn" onclick="syncNow()">סנכרן</button>
+    </div>
+
+    <div class="set-row">
+      <div class="set-row-info">
+        <div class="set-row-title">סנכרון אוטומטי</div>
+        <div class="set-row-sub">משיכה אוטומטית כל 30 שניות. שמירה תמיד אוטומטית.</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="autosync-toggle" onchange="onAutoSyncToggle(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="set-row">
+      <div class="set-row-info">
+        <div class="set-row-title">מצב תצוגה</div>
+        <div class="set-row-sub">החלפה בין יום (בהיר) ולילה (כהה).</div>
+      </div>
+      <button class="set-btn ghost" id="theme-set-btn" onclick="toggleTheme()">🌙 לילה</button>
+    </div>
+
+    <div class="set-row">
+      <div class="set-row-info">
+        <div class="set-row-title">התנתקות</div>
+        <div class="set-row-sub">מנתק את החיבור לגיטהאב במכשיר הזה. תצטרך להזין טוקן מחדש.</div>
+      </div>
+      <button class="set-btn danger" onclick="logout()">התנתק</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ HABIT DETAIL MODAL ══ -->
 <div id="detail-modal" class="modal hidden">
@@ -440,11 +550,12 @@ function b64dec(b64){
   }).join(''));
 }
 
-async function ghGet(path){
+async function ghGet(path, noCache){
   var cfg = getCfg();
-  var res = await fetch('https://api.github.com/repos/'+cfg.owner+'/'+cfg.repo+'/contents/'+path, {
-    headers: { 'Authorization': 'token '+cfg.token, 'Accept': 'application/vnd.github.v3+json' }
-  });
+  var url = 'https://api.github.com/repos/'+cfg.owner+'/'+cfg.repo+'/contents/'+path;
+  var opt = { headers: { 'Authorization': 'token '+cfg.token, 'Accept': 'application/vnd.github.v3+json' } };
+  if(noCache){ opt.cache = 'no-store'; url += '?t=' + Date.now(); }
+  var res = await fetch(url, opt);
   if(res.status === 404) return null;
   if(!res.ok){ var e = await res.json(); throw new Error(e.message||res.status); }
   var d = await res.json();
@@ -579,14 +690,16 @@ function firstTrackedDate(log){
 // תור שמירות: משרשר את כל הקריאות כך שאף שמירה לא נופלת,
 // וכל שמירה משתמשת ב-sha המעודכן מהשמירה הקודמת.
 var saveChain = Promise.resolve();
+var pendingSaves = 0;
 function saveData(){
+  pendingSaves++;
   saveChain = saveChain.then(async function(){
     try {
       trackingSha = await ghPut(DATA_PATH, trackingData, trackingSha);
     } catch(e) {
       toast('שגיאת שמירה: ' + e.message);
     }
-  });
+  }).then(function(){ pendingSaves--; }, function(){ pendingSaves--; });
   return saveChain;
 }
 
@@ -767,6 +880,7 @@ function render(){
   });
 
   renderHistory();
+  renderHabitHistory();
   renderChat();
 }
 
@@ -879,7 +993,11 @@ async function saveHabitNote(){
   if(!trackingData.log[ts].notes) trackingData.log[ts].notes={};
   trackingData.log[ts].notes[detailHabitId] = document.getElementById('d-note').value.trim();
   // marking a note implies done
-  if(trackingData.log[ts][detailHabitId]===undefined) trackingData.log[ts][detailHabitId]=true;
+  if(trackingData.log[ts][detailHabitId]===undefined){
+    trackingData.log[ts][detailHabitId]=true;
+    if(!trackingData.log[ts].times) trackingData.log[ts].times={};
+    trackingData.log[ts].times[detailHabitId]=new Date().toISOString();
+  }
   await saveData();
   toast('הפרטים נשמרו ✓');
   openDetail(detailHabitId);
@@ -1044,14 +1162,161 @@ function toggleHistory(){
   t.textContent = open?'▼ פתח':'▲ סגור';
 }
 
+// ══ HABIT HISTORY FEED ══════════════════════════════════════════════════════
+// פיד כרונולוגי של כל ביצוע הרגל: שעה + הערה (אם נרשמה)
+function renderHabitHistory(){
+  var el = document.getElementById('hh-list');
+  if(!el) return;
+  el.innerHTML = '';
+  var log = trackingData.log || {};
+  var habitById = {};
+  (trackingData.habits||[]).forEach(function(h){ habitById[h.id]=h; });
+
+  var items = [];
+  Object.keys(log).forEach(function(ds){
+    var entry = log[ds];
+    var times = entry.times || {};
+    var notes = entry.notes || {};
+    Object.keys(entry).forEach(function(key){
+      if(['times','notes','journal','reflection','mood'].indexOf(key)>=0) return;
+      if(entry[key]!==true) return;            // רק הרגלים שבוצעו
+      var h = habitById[key];
+      if(!h) return;
+      var iso = times[key] || null;            // שעה אם נשמרה (לרשומות ישנות אין)
+      var sortKey = iso || (ds+'T00:00:00');
+      items.push({ id:key, h:h, ds:ds, iso:iso, note:(notes[key]||'').trim(), sortKey:sortKey });
+    });
+  });
+  items.sort(function(a,b){ return a.sortKey < b.sortKey ? 1 : -1; });  // חדש→ישן
+
+  if(!items.length){
+    el.innerHTML = '<div class="hist-empty">עדיין אין ביצועים. כל הרגל שתסמן יופיע כאן עם השעה.</div>';
+    return;
+  }
+  var DAYS=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+  var todayS = todayStr();
+  items.forEach(function(it){
+    var d = new Date(it.ds);
+    var dateLbl = (it.ds===todayS) ? 'היום' : DAYS[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);
+    var timeLbl = it.iso ? (('0'+new Date(it.iso).getHours()).slice(-2)+':'+('0'+new Date(it.iso).getMinutes()).slice(-2)) : '—';
+    var row = document.createElement('div');
+    row.className = 'hh-row';
+    row.innerHTML =
+      '<div class="hh-icon">'+(it.h.icon||'✅')+'</div>'+
+      '<div class="hh-main">'+
+        '<div class="hh-name">'+escapeHtml(it.h.name)+'</div>'+
+        (it.note ? '<div class="hh-note">'+escapeHtml(it.note)+'</div>' : '')+
+      '</div>'+
+      '<div><div class="hh-time">'+timeLbl+'</div><div class="hh-date">'+dateLbl+'</div></div>';
+    el.appendChild(row);
+  });
+}
+
+function toggleHabitHistory(){
+  var b=document.getElementById('hhbody'), t=document.getElementById('hhtog');
+  var open=b.classList.toggle('hidden');
+  t.textContent = open?'▼ פתח':'▲ סגור';
+}
+
+// ══ THEME (יום/לילה) ════════════════════════════════════════════════════════
+function getTheme(){ return localStorage.getItem('jc_theme') || 'dark'; }
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  var dark = (t!=='light');
+  var hb = document.getElementById('theme-btn');
+  if(hb) hb.textContent = dark ? '🌙' : '☀️';
+  var sb = document.getElementById('theme-set-btn');
+  if(sb) sb.textContent = dark ? '🌙 לילה' : '☀️ יום';
+}
+function toggleTheme(){
+  var t = getTheme()==='light' ? 'dark' : 'light';
+  localStorage.setItem('jc_theme', t);
+  applyTheme(t);
+}
+
+// ══ SETTINGS MODAL ══════════════════════════════════════════════════════════
+function openSettings(){
+  document.getElementById('autosync-toggle').checked = getAutoSync();
+  applyTheme(getTheme());
+  updateSyncStatus();
+  document.getElementById('settings-modal').classList.remove('hidden');
+}
+function closeSettings(){ document.getElementById('settings-modal').classList.add('hidden'); }
+
+var lastSyncAt = null;
+function updateSyncStatus(){
+  var el = document.getElementById('set-sync-status');
+  if(!el) return;
+  var auto = getAutoSync() ? 'אוטומטי פעיל' : 'אוטומטי כבוי';
+  var when = lastSyncAt
+    ? ('0'+lastSyncAt.getHours()).slice(-2)+':'+('0'+lastSyncAt.getMinutes()).slice(-2)
+    : '—';
+  el.textContent = 'סנכרון אחרון: '+when+' · '+auto;
+}
+
+async function syncNow(){
+  var btn = document.getElementById('sync-now-btn');
+  if(btn){ btn.disabled=true; btn.textContent='...'; }
+  try {
+    await saveChain;                 // לסיים שמירות שבתהליך לפני משיכה
+    var res = await ghGet(DATA_PATH, true);
+    if(res){
+      trackingData = res.content;
+      trackingSha  = res.sha;
+      render();
+    }
+    lastSyncAt = new Date();
+    toast('סונכרן ✓');
+  } catch(e){
+    toast('שגיאת סנכרון: '+e.message);
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='סנכרן'; }
+    updateSyncStatus();
+  }
+}
+
+// ══ AUTO-SYNC (משיכה אוטומטית) ══════════════════════════════════════════════
+function getAutoSync(){ return localStorage.getItem('jc_autosync')==='1'; }
+var autoSyncTimer = null;
+function startAutoSync(){
+  stopAutoSync();
+  if(getAutoSync()) autoSyncTimer = setInterval(autoPull, 30000);  // כל 30 שניות
+}
+function stopAutoSync(){ if(autoSyncTimer){ clearInterval(autoSyncTimer); autoSyncTimer=null; } }
+function onAutoSyncToggle(on){
+  localStorage.setItem('jc_autosync', on ? '1' : '0');
+  startAutoSync();
+  updateSyncStatus();
+  if(on) toast('סנכרון אוטומטי הופעל');
+}
+async function autoPull(){
+  if(pendingSaves>0) return;          // לא לדרוס שינוי מקומי שעוד לא נשמר
+  try {
+    var res = await ghGet(DATA_PATH, true);
+    if(res && res.sha !== trackingSha){
+      trackingData = res.content;
+      trackingSha  = res.sha;
+      render();
+      lastSyncAt = new Date();
+      updateSyncStatus();
+    }
+  } catch(e){ /* שקט — ננסה שוב בפעם הבאה */ }
+}
+
 // ══ ACTIONS ═════════════════════════════════════════════════════════════════
 async function toggleHabit(h){
   var ts = todayStr();
   if(!trackingData.log[ts]) trackingData.log[ts] = {};
-  var cur = trackingData.log[ts][h.id];
+  var entry = trackingData.log[ts];
+  var cur = entry[h.id];
   var next = cur===true?false:cur===false?null:true;
-  if(next===null) delete trackingData.log[ts][h.id];
-  else trackingData.log[ts][h.id] = next;
+  if(!entry.times) entry.times = {};
+  if(next===null){ delete entry[h.id]; delete entry.times[h.id]; }
+  else {
+    entry[h.id] = next;
+    if(next===true) entry.times[h.id] = new Date().toISOString();  // שעת הביצוע
+    else delete entry.times[h.id];
+  }
   render();
   await saveData();
   if(next===true)  toast('✅ '+h.name);
@@ -1131,6 +1396,7 @@ function toast(msg){
 
 // ══ INIT ════════════════════════════════════════════════════════════════════
 (async function(){
+  applyTheme(getTheme());           // ערכת נושא מיד, עוד לפני התחברות
   var cfg = getCfg();
   if(!cfg){
     document.getElementById('setup').classList.remove('hidden');
@@ -1148,6 +1414,8 @@ function toast(msg){
       trackingSha  = res.sha;
     }
     render();
+    lastSyncAt = new Date();
+    startAutoSync();                 // מפעיל משיכה אוטומטית אם הוגדרה
   } catch(e){
     document.getElementById('loading').innerHTML =
       '<div style="color:var(--red)">שגיאה בטעינה: '+e.message+'<br><br>'+
