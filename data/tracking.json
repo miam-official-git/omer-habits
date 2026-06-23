@@ -69,7 +69,10 @@
       "notes": {
         "sport": "רצתי היום 1.08 ק\"מ ב5:31 דק'"
       },
-      "times": {}
+      "times": {
+        "tefillin": "2026-06-23T07:54:32.990Z"
+      },
+      "tefillin": true
     }
   },
   "messages": [
