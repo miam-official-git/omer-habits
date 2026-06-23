@@ -71,9 +71,11 @@
         "tefillin": "הנחתי עכשיו"
       },
       "times": {
-        "tefillin": "2026-06-23T07:54:00.000Z"
+        "tefillin": "2026-06-23T07:54:00.000Z",
+        "strength": "2026-06-23T20:13:39.459Z"
       },
-      "tefillin": true
+      "tefillin": true,
+      "strength": true
     }
   },
   "messages": [
