@@ -72,7 +72,10 @@
       ]
     },
     "2026-06-23": {
-      "sport": true
+      "sport": true,
+      "notes": {
+        "sport": "רצתי 1.08 ק\"מ ב5:31"
+      }
     }
   },
   "messages": [
