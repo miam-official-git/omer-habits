@@ -475,6 +475,10 @@ textarea::placeholder{color:var(--muted)}
     <div class="d-note-box">
       <label>פרטי היום — מה בדיוק עשית?</label>
       <input id="d-note" placeholder="למשל: 1.29 ק״מ · 7:08 דק׳ / 100 שכיבות">
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+        <label style="margin:0;white-space:nowrap;flex-shrink:0">🕐 שעת ביצוע</label>
+        <input id="d-time" type="time" style="direction:ltr">
+      </div>
       <button class="btn-main" onclick="saveHabitNote()" style="margin-top:10px">שמור פרטים</button>
     </div>
     <div class="d-hist-title">היסטוריה</div>
@@ -958,9 +962,13 @@ function openDetail(id){
   document.getElementById('d-month').textContent = (mTot>0?Math.round(mDone/mTot*100):0)+'%';
   document.getElementById('d-total').textContent = total;
 
-  // today's note
+  // today's note + time
   var ts = todayStr();
   document.getElementById('d-note').value = ((log[ts]||{}).notes||{})[id] || '';
+  var tIso = ((log[ts]||{}).times||{})[id];
+  document.getElementById('d-time').value = tIso
+    ? (('0'+new Date(tIso).getHours()).slice(-2)+':'+('0'+new Date(tIso).getMinutes()).slice(-2))
+    : '';
 
   // history list — days with a record, newest first
   var hist = document.getElementById('d-history');
@@ -993,10 +1001,17 @@ async function saveHabitNote(){
   if(!trackingData.log[ts].notes) trackingData.log[ts].notes={};
   trackingData.log[ts].notes[detailHabitId] = document.getElementById('d-note').value.trim();
   // marking a note implies done
-  if(trackingData.log[ts][detailHabitId]===undefined){
-    trackingData.log[ts][detailHabitId]=true;
-    if(!trackingData.log[ts].times) trackingData.log[ts].times={};
-    trackingData.log[ts].times[detailHabitId]=new Date().toISOString();
+  if(trackingData.log[ts][detailHabitId]===undefined) trackingData.log[ts][detailHabitId]=true;
+  // שעת ביצוע — ידנית (אם נקבעה) או אוטומטית בעת סימון ראשון
+  if(!trackingData.log[ts].times) trackingData.log[ts].times={};
+  var tval = document.getElementById('d-time').value;  // "HH:MM"
+  if(tval){
+    var p = tval.split(':');
+    var dd = new Date(ts+'T00:00:00');
+    dd.setHours(+p[0], +p[1], 0, 0);
+    trackingData.log[ts].times[detailHabitId] = dd.toISOString();
+  } else if(trackingData.log[ts][detailHabitId]===true && !trackingData.log[ts].times[detailHabitId]){
+    trackingData.log[ts].times[detailHabitId] = new Date().toISOString();
   }
   await saveData();
   toast('הפרטים נשמרו ✓');
