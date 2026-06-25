@@ -96,9 +96,12 @@
     },
     "2026-06-25": {
       "times": {
-        "tefillin": "2026-06-25T10:35:09.979Z"
+        "tefillin": "2026-06-25T10:35:00.000Z"
       },
-      "tefillin": true
+      "tefillin": true,
+      "notes": {
+        "tefillin": "הנחתי עכשיו"
+      }
     }
   },
   "messages": [
