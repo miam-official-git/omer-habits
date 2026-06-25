@@ -85,12 +85,13 @@
       "sport": true,
       "strength": true,
       "tefillin": true,
-      "mia": null,
-      "family": null,
+      "mia": true,
+      "family": false,
       "notes": {
         "tefillin": "התפלל ב-15:00 אחרי נחיתה",
         "sport": "1.05 ק\"מ ב-5:23 דק' — בלילה סביב 21:30",
-        "strength": "100 שכיבות סמיכה לפני הריצה"
+        "strength": "100 שכיבות סמיכה לפני הריצה",
+        "mia": "סחב שקיות, הלך איתה לחנות שהיא רצתה — למרות עייפות"
       }
     }
   },
