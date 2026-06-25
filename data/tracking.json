@@ -95,10 +95,8 @@
       }
     },
     "2026-06-25": {
-      "times": {
-        "tefillin": "2026-06-25T10:24:11.868Z"
-      },
-      "tefillin": true
+      "times": {},
+      "tefillin": false
     }
   },
   "messages": [
