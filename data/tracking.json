@@ -105,9 +105,11 @@
     },
     "2026-06-29": {
       "times": {
-        "tefillin": "2026-06-29T15:32:17.447Z"
+        "tefillin": "2026-06-29T15:32:17.447Z",
+        "sport": "2026-06-29T15:43:28.920Z"
       },
-      "tefillin": true
+      "tefillin": true,
+      "sport": true
     }
   },
   "messages": [
