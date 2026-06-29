@@ -107,7 +107,8 @@
       "times": {
         "tefillin": "2026-06-29T15:32:17.447Z",
         "sport": "2026-06-29T15:43:00.000Z",
-        "strength": "2026-06-29T15:52:22.996Z"
+        "strength": "2026-06-29T15:52:22.996Z",
+        "family": "2026-06-29T15:52:29.525Z"
       },
       "tefillin": true,
       "sport": true,
@@ -115,7 +116,8 @@
         "sport": "סיימתי עכשיו 1.55 ק\"מ ב8.12 שניות",
         "strength": "עשיתי 30 מתח ב6 דק'"
       },
-      "strength": true
+      "strength": true,
+      "family": true
     }
   },
   "messages": [
