@@ -146,9 +146,12 @@
     },
     "2026-07-01": {
       "times": {
-        "tefillin": "2026-07-01T04:58:14.811Z"
+        "tefillin": "2026-07-01T04:50:00.000Z"
       },
-      "tefillin": true
+      "tefillin": true,
+      "notes": {
+        "tefillin": ""
+      }
     }
   },
   "messages": [
